@@ -1,12 +1,15 @@
 package expo.modules.updates.logging
 
+import android.content.Context
 import android.util.Log
 import java.util.*
 
 /**
  * Class that implements logging for expo-updates with its own logcat tag
  */
-class UpdatesLogger {
+class UpdatesLogger(
+  private val context: Context
+) {
 
   fun trace(
     message: String,
@@ -104,6 +107,10 @@ class UpdatesLogger {
     log(message, code, UpdatesLogType.Fatal, updateId, assetId)
   }
 
+  // Private methods and fields
+
+  private val persistentLog = UpdatesPersistentLog(context)
+
   private fun log(
     message: String,
     code: UpdatesErrorCode,
@@ -131,6 +138,8 @@ class UpdatesLogger {
       assetId,
       stacktrace
     )
+
+    persistentLog.appendEntry(logEntry.asString())
     when (UpdatesLogType.toOSLogType(level)) {
       Log.DEBUG -> Log.d(EXPO_UPDATES_LOGGING_TAG, logEntry.asString())
       Log.INFO -> Log.i(EXPO_UPDATES_LOGGING_TAG, logEntry.asString())
